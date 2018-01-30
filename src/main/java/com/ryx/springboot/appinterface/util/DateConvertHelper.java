@@ -26,6 +26,31 @@ public class DateConvertHelper {
 		}  		
 		return date;
 	}
+
+	/**
+	 * string 转yyyy-MM-dd HH:mm:ss类型时间
+	 * @param dateS
+	 * @return
+	 */
+	public static Date str2LongDate(String dateS){
+		Date date;
+		if(dateS !=null && dateS.length()>=8){
+            try
+            {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                date = sdf.parse(dateS);
+            }
+            catch ( Exception e)
+            {
+                e.printStackTrace();
+                date=null;
+            }
+            return date;
+        }else{
+		    return  null;
+        }
+
+	}
 	
 	public static java.sql.Date StringToSqlDate(String dateS){	 
 		java.sql.Date  sqlDate=null;

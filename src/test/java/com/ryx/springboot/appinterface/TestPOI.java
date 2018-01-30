@@ -24,9 +24,14 @@ public class TestPOI {
             userList.add(user);
             System.out.println("user"+i+":"+user);
         }
-        System.out.println("开始导入测试：");
+        System.out.println("开始写入：===============================================");
         PoiUtil.writeExcel(userList,"d:/testuser.xlsx");
-
+        System.out.println("完成");
+        System.out.println("开始读取：===============================================");
+        List<User> readList=PoiUtil.readExcel("d:/testuser.xlsx",new User());
+        for (User user:readList) {
+            System.out.println("user:"+user);
+        }
         System.out.println("完成");
     }
 
@@ -40,13 +45,19 @@ public class TestPOI {
             list.add(null);
             list.add(new Date());
             list.add(new Date());
-
             conList.add(list);
+            System.out.println("list:"+list);
         }
-        System.out.println("通用型开始写入：");
+        System.out.println("通用型开始写入：===============================================");
         PoiUtil.writeExcelUniversal(conList,"d:/testUniversal.xlsx");
         System.out.println("完成");
 
+        System.out.println("开始读取：===============================================");
+        List<List<String>> readList=PoiUtil.readExcelUniversal("d:/testUniversal.xlsx");
+        for (List list:readList) {
+            System.out.println("list:"+list);
+        }
+        System.out.println("完成");
     }
 
     @Test

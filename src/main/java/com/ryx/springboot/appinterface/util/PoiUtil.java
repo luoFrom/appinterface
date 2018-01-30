@@ -41,8 +41,8 @@ public class PoiUtil {
             Sheet sheet=wb.createSheet("sheet1");
             //利用反射获取传入对象第一个元素的所有属性
             Field[] fields=contentList.get(0).getClass().getDeclaredFields();
-            Row row=null;
-            Cell cell=null;
+            Row row;
+            Cell cell;
             //遍历内容list，每行
             for (int i=0;i<contentList.size();++i){
                 //创建第一行
@@ -56,7 +56,7 @@ public class PoiUtil {
                     cell = row.createCell(j);
                     //设置居中对齐
                     cellStyle=setCellStyleAlignment(cellStyle);
-                    cellStyle=setCellFormat(helper,cellStyle,"yyyy-MM-dd HH:mm:ss");
+                    cellStyle=setCellFormat(helper,cellStyle);
                     //设置单元格样式
                     cell.setCellStyle(cellStyle);
                     //获取当前行内容对象
@@ -106,37 +106,35 @@ public class PoiUtil {
             }
             CreationHelper helper = wb.getCreationHelper();
             Sheet sheet1 = wb.createSheet("sheet1");
-            Row row = null;
-            Cell cell = null;
+            Row row;
+            Cell cell;
             int maxCol=0;
             //循环第一层list，每行
             for(int i = 0; i < list.size(); ++i) {
-                List<Object> rowlist = (List)list.get(i);
+                List rowList = list.get(i);
                 row = sheet1.createRow(i);
                 row.setHeightInPoints(20.0F);
                 //获取最大列数
-                if(rowlist.size()>maxCol){
-                    maxCol=rowlist.size();
+                if(rowList.size()>maxCol){
+                    maxCol=rowList.size();
                 }
 
                 //循环第二层list，每列
-                for(int j = 0; j < rowlist.size(); ++j) {
+                for(int j = 0; j < rowList.size(); ++j) {
                     CellStyle cellStyle = createStyleCell(wb);
                     cell = row.createCell(j);
                     cellStyle = setCellStyleAlignment(cellStyle);
-                    cellStyle = setCellFormat(helper, cellStyle, "yyyy-MM-dd HH:mm:ss");
+                    cellStyle = setCellFormat(helper, cellStyle);
                     //设置单元格样式
                     cell.setCellStyle(cellStyle);
                     //设置单元格值
-                    cell.setCellValue(PramTypeJudgeUtil.obj2Str(rowlist.get(j)));
+                    cell.setCellValue(PramTypeJudgeUtil.obj2Str(rowList.get(j)));
                 }
             }
-
             for (int j=0;j< maxCol;j++){
                 //设置列宽自动调整
                 sheet1.autoSizeColumn(j);
             }
-
             OutputStream os = new FileOutputStream(new File(outpath));
             wb.write(os);
             os.close();
@@ -158,7 +156,7 @@ public class PoiUtil {
     public static <T> List<T> readExcel(String excelpath, T t) throws Exception {
         InputStream is = new FileInputStream(new File(excelpath));
         Workbook wb = WorkbookFactory.create(is);
-        List<T> list = new ArrayList();
+        List<T> list = new ArrayList<>();
         Sheet ts = wb.getSheetAt(0);
         //获取对象的所有属性
         Field[] fields = t.getClass().getDeclaredFields();
@@ -196,9 +194,13 @@ public class PoiUtil {
      * 得到带构造的类的实例
      * 实现类的有参实例
      * */
-    private static Object newInstance(Class clazz, Object... args){
+    private static Object newInstance(Class clazz, String... args){
 
         try {
+            if(clazz.getName().contains("util.Date")){
+                java.util.Date date=DateConvertHelper.str2LongDate(args[0].toString());
+                return  date;
+            }
             Class[] argsClass = new Class[args.length];
             for (int i = 0, j = args.length; i < j; i++) {
                 argsClass[i] = args[i].getClass();
@@ -223,14 +225,14 @@ public class PoiUtil {
         InputStream is = new FileInputStream(new File(excelpath));
         Workbook wb = WorkbookFactory.create(is);
         Sheet ts = wb.getSheetAt(0);
-        List<List<String>> lastlist = new ArrayList();
+        List<List<String>> lastlL = new ArrayList<>();
         if (ts != null) {
             //读取每行内容
             for(int rowN = 0; rowN <= ts.getLastRowNum(); ++rowN) {
                 //获取行对象
                 Row row = ts.getRow(rowN);
                 if (row != null) {
-                    List<String> rowList = new ArrayList();
+                    List<String> rowList = new ArrayList<>();
                     //读取每列
                     for(int i = 0; i < row.getLastCellNum(); ++i) {
                         //获取单元格对象
@@ -239,12 +241,12 @@ public class PoiUtil {
                         rowList.add(PramTypeJudgeUtil.getCellStringValue(cell));
                     }
                     //将行内容list集合放入总list集合
-                    lastlist.add(rowList);
+                    lastlL.add(rowList);
                 }
             }
         }
 
-        return lastlist;
+        return lastlL;
     }
 
     /**
@@ -284,11 +286,10 @@ public class PoiUtil {
      * 设置单元格日期格式化
      * @param helper
      * @param cellStyle
-     * @param fmt
      * @return
      */
-    private static CellStyle setCellFormat(CreationHelper helper, CellStyle cellStyle, String fmt) {
-        cellStyle.setDataFormat(helper.createDataFormat().getFormat(fmt));
+    private static CellStyle setCellFormat(CreationHelper helper, CellStyle cellStyle) {
+        cellStyle.setDataFormat(helper.createDataFormat().getFormat("yyyy-MM-dd HH:mm:ss"));
         return cellStyle;
     }
 
